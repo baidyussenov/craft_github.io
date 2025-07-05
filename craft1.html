@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gastro AR | Меню с дополненной реальностью</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+        .ar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .dish-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .model-viewer-container {
+            width: 100%;
+            height: 300px;
+            background-color: #f5f5f5;
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-6 flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center mr-3">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/47a12df5-c64e-40c3-ad15-d25b0d04aa67.png" alt="Логотип ресторана - стилизованная буква G в круге насыщенного желтого цвета" />
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">GASTRO AR</h1>
+            </div>
+            <div>
+                <button id="ar-btn" class="bg-black text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition">
+                    AR Просмотр
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Наше меню</h2>
+            
+            <!-- Menu Categories -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Основные блюда</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Dish 1 -->
+                    <div class="dish-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f3e97e43-e1d9-41ea-9cd9-5bd65a329e19.png" alt="Стейк из мраморной говядины с розмарином и овощами гриль: сочное мясо средней прожарки, украшенное веточками розмарина, на темной деревянной доске" class="w-full h-48 object-cover" />
+                            <button class="absolute bottom-3 right-3 bg-yellow-500 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md hover:bg-yellow-600 transition" onclick="showDishAR('steak')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-lg text-gray-800 mb-1">Стейк Ribeye</h4>
+                            <p class="text-gray-600 mb-3">Мраморная говядина, розмарин, овощи гриль</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800">1 890 ₽</span>
+                                <button class="text-sm bg-gray-100 rounded-full px-3 py-1 hover:bg-gray-200 transition">Добавить</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dish 2 -->
+                    <div class="dish-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f4d15f82-ebc5-4333-bc9f-2f2a332d3586.png" alt="Лазанья в белом керамическом горшочке с золотистой сырной корочкой и зеленью базилика: слои пасты, соуса бешамель и фарша, украшенные свежим базиликом" class="w-full h-48 object-cover" />
+                            <button class="absolute bottom-3 right-3 bg-yellow-500 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md hover:bg-yellow-600 transition" onclick="showDishAR('lasagna')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-lg text-gray-800 mb-1">Лазанья Болоньезе</h4>
+                            <p class="text-gray-600 mb-3">Домашняя паста, говяжий фарш, соус бешамель</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800">1 290 ₽</span>
+                                <button class="text-sm bg-gray-100 rounded-full px-3 py-1 hover:bg-gray-200 transition">Добавить</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dish 3 -->
+                    <div class="dish-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/0102eb86-4535-44a3-807b-88b085da7588.png" alt="Тартар из лосося с авокадо и икрой: аккуратная композиция из свежего лосося, кубиков авокадо, каперсов и ложки красной икры на белой тарелке" class="w-full h-48 object-cover" />
+                            <button class="absolute bottom-3 right-3 bg-yellow-500 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md hover:bg-yellow-600 transition" onclick="showDishAR('salmon')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-lg text-gray-800 mb-1">Тартар из лосося</h4>
+                            <p class="text-gray-600 mb-3">Свежий лосось, авокадо, красная икра</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800">1 490 ₽</span>
+                                <button class="text-sm bg-gray-100 rounded-full px-3 py-1 hover:bg-gray-200 transition">Добавить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AR QR Code Section -->
+        <section class="bg-white rounded-xl shadow-md p-6 mb-12">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">Дополненная реальность</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <p class="text-gray-600 mb-4">Наведите камеру вашего устройства на QR-код ниже, чтобы в режиме AR увидеть наши блюда у себя на столе.</p>
+                    <div class="p-4 bg-gray-100 rounded-lg inline-block" id="qr-container">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2518e000-71f1-4236-8721-069f6c756075.png" alt="QR-код для просмотра меню в дополненной реальности черными квадратами на белом фоне с логотипом ресторана в центре" id="qrcode" width="200" height="200" />
+                        <button id="ios-qr-btn" class="hidden mt-2 bg-blue-500 text-white px-3 py-1 rounded text-xs">iOS: Нажмите для Quick Look</button>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-3">* Требуется поддержка WebXR в браузере</p>
+                </div>
+                <div class="bg-gray-100 rounded-lg flex items-center justify-center">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b77d19a5-13f4-4306-be9d-c1682abde682.png" alt="Пример работы AR: 3D-модель стейка на маркере, демонстрирующая реалистичную текстуру и тени, оформлена в минималистичном стиле" class="rounded-lg shadow-sm" />
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- AR Overlay -->
+    <div id="ar-overlay" class="ar-overlay" style="display: none;">
+        <h2 class="text-2xl font-bold mb-4">AR Просмотр</h2>
+        <div id="ar-instructions">
+            <p class="mb-6 text-center max-w-md" id="android-instruction">Наведите камеру на маркер Hiro, чтобы увидеть блюдо в дополненной реальности.<br><a href="https://raw.githubusercontent.com/AR-js-org/studio/master/assets/default-marker.png" target="_blank" class="text-yellow-400 underline">Скачать маркер</a></p>
+            <p class="mb-6 text-center max-w-md hidden" id="ios-instruction">Нажмите кнопку ниже для просмотра в AR через Quick Look.<br>Наведите камеру на любую плоскую поверхность.</p>
+        </div>
+        
+        <!-- Container for AR.js scene -->
+        <div id="ar-container" style="width: 100%; height: 70%;"></div>
+        
+        <button id="close-ar" class="mt-6 bg-white text-black px-6 py-2 rounded-full font-medium hover:bg-gray-200 transition">Закрыть AR</button>
+    </div>
+
+    <!-- iOS Model Viewer Container -->
+    <div id="model-viewer" class="model-viewer-container">
+        <model-viewer 
+            id="ios-model-viewer"
+            src="./models/steak.usdz"
+            ar
+            ar-modes="quick-look"
+            camera-controls
+            style="width:100%; height:100%;"
+            alt="3D модель блюда">
+        </model-viewer>
+    </div>
+
+    <script>
+        // Global variables
+        let currentModel = '';
+        
+        // Show AR View for specific dish
+        function showDishAR(dishName) {
+            currentModel = dishName;
+            document.getElementById('ar-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Initialize AR.js scene
+            initARScene();
+        }
+        
+        // Initialize AR.js scene
+        function initARScene() {
+            const container = document.getElementById('ar-container');
+            // Disable touch events in AR mode
+            document.body.style.touchAction = 'none';
+            container.innerHTML = `
+                <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" gesture-detector>
+                    <a-marker type="pattern" preset="hiro">
+                        ${getModelForDish(currentModel)}
+                    </a-marker>
+                    <a-entity camera></a-entity>
+                </a-scene>
+            `;
+        }
+        
+        // Get appropriate 3D model based on dish
+        function getModelForDish(dishName) {
+            switch(dishName) {
+                case 'steak':
+                    return `
+                        <a-entity 
+                            gltf-model="https://cdn.glitch.global/5e5ba4a6-84a1-4ce0-87fc-b9271cec9ec4/steak.glb" 
+                            scale="0.5 0.5 0.5" 
+                            rotation="0 180 0"
+                            animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"
+                            gesture-handler="minScale: 0.5; maxScale: 2">
+                        </a-entity>
+                    `;
+                case 'lasagna':
+                    return `
+                        <a-entity 
+                            gltf-model="https://cdn.glitch.global/5e5ba4a6-84a1-4ce0-87fc-b9271cec9ec4/lasagna.glb" 
+                            scale="0.3 0.3 0.3" 
+                            rotation="0 180 0"
+                            animation="property: position; dir: alternate; dur: 2000; to: 0 0.1 0; loop: true"
+                            gesture-handler="minScale: 0.5; maxScale: 2">
+                        </a-entity>
+                    `;
+                case 'salmon':
+                    return `
+                        <a-entity 
+                            gltf-model="https://cdn.glitch.global/5e5ba4a6-84a1-4ce0-87fc-b9271cec9ec4/salmon.glb" 
+                            scale="0.2 0.2 0.2" 
+                            rotation="0 180 0"
+                            animation="property: rotation; to: 0 30 0; dir: alternate; dur: 2000; loop: true"
+                            gesture-handler="minScale: 0.5; maxScale: 2">
+                        </a-entity>
+                    `;
+                default:
+                    return `<a-box color="red"></a-box>`;
+            }
+        }
+        
+        // Close AR view
+        document.getElementById('close-ar').addEventListener('click', function() {
+            document.getElementById('ar-overlay').style.display = 'none';
+            // Re-enable touch events
+            document.body.style.touchAction = '';
+            document.body.style.overflow = 'auto';
+            document.getElementById('ar-container').innerHTML = '';
+        });
+        
+        // Show appropriate AR view based on platform
+        document.getElementById('ar-btn').addEventListener('click', function() {
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                document.getElementById('ios-instruction').classList.remove('hidden');
+                document.getElementById('android-instruction').classList.add('hidden');
+            } else {
+                document.getElementById('ios-instruction').classList.add('hidden');
+                document.getElementById('android-instruction').classList.remove('hidden');
+            }
+            
+            if (!isMobile()) {
+                alert('Для AR просмотра откройте сайт на мобильном устройстве с поддержкой WebXR');
+                return;
+            }
+
+            currentModel = 'steak';
+            document.getElementById('ar-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            initARScene();
+        });
+        
+        // Check for mobile browsers
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // Show appropriate AR experience based on device
+        // Enhance mobile detection
+        function isLandscape() {
+            return window.matchMedia("(orientation: landscape)").matches;
+        }
+
+        if (isMobile()) {
+            // Show landscape warning if in portrait
+            if (!isLandscape()) {
+                alert('Для лучшего AR опыта поверните устройство в альбомную ориентацию');
+            }
+            // iPhones get Quick Look
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                document.getElementById('ar-btn').addEventListener('click', function() {
+                    window.location.href = "./models/steak.usdz#custom-ar=true";
+                });
+            }
+            // Fallback for Safari
+            else if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+                alert('Для лучшего AR опыта рекомендуем использовать Chrome или Firefox на Android.');
+            }
+        }
+    </script>
+</body>
+</html>
